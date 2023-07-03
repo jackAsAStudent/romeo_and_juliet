@@ -1,3 +1,5 @@
+import re
+
 def create_character_dict(characters):
     character_dict = {}
     for i in range(len(characters)):
@@ -5,3 +7,6 @@ def create_character_dict(characters):
             character_dict[(characters[i], characters[j])] = []
             character_dict[(characters[j], characters[i])] = []
     return character_dict
+
+def remove_brackets(text):
+    return re.sub(r'\[.*?\]', '', text)

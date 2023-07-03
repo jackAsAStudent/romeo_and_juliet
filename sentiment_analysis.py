@@ -1,4 +1,4 @@
-from character_dict import create_character_dict
+from tools import create_character_dict, remove_brackets
 from dotenv import load_dotenv
 import os
 
@@ -45,15 +45,18 @@ if __name__ == '__main__':
 
     counter = 0
     for speaker, dialogue in parse_dialogue('romeo_and_juliet.txt'):
-        if counter < 30:
+        if counter < 200:
+            dialogue = remove_brackets(dialogue)
             entities = cog_client.recognize_entities(documents=[dialogue])[0]
-            for entity in entities.entities:
-                if entity.category == 'Person' and entity.text.upper() in characters:
-                    sentiment = cog_client.analyze_sentiment(documents=[dialogue])[0]
-                    sentiments[speaker, entity.text.upper()].append(sentiment.confidence_scores.positive)
-                    print(f"Character: {entity.text.upper()} Sentiment: {sentiment.confidence_scores.positive}")
-            print(f"{counter}:: {speaker}: {dialogue}")
-            counter += 1
+            if entities.entities:
+                for entity in entities.entities:
+                    entity_key = entity.text.upper()
+                    if entity_key in characters and entity_key != speaker:
+                        sentiment = cog_client.analyze_sentiment(documents=[dialogue])[0]
+                        sentiments[speaker, entity_key].append(sentiment.confidence_scores.positive)
+                        print(f"Character: {entity_key} Sentiment: {sentiment.confidence_scores.positive}")
+                print(f"{counter}:: {speaker}: {dialogue}")
+                counter += 1
         else:
             break
 
